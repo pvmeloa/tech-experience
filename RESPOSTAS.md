@@ -1,127 +1,87 @@
-# Atividade Avaliativa — Fundamentos de PHP e Integração Web
+# Atividade Avaliativa - Fundamentos de PHP e Integração Web
 
-| | |
-|---|---|
-| **Estudante** | Pedro Vitor de Melo Alves |
-| **Turma / Disciplina** | Desenvolvimento Web — 3005 |
-| **Data de entrega** | 23/11/2026 |
+Aluno: Pedro Vitor de Melo Alves
+Turma: Desenvolvimento Web - 3005
+Entrega: 23/11/2026
 
-**Parte 1 — Respostas das questões teóricas**
+Parte 1 - Questões teóricas
 
-A Parte 2 (projeto prático) está nos arquivos deste repositório: `index.html`, `style.css`, `script.js` e `processar.php`.
+(A parte 2 está nos arquivos do repositório: index.html, style.css, script.js e processar.php)
 
----
 
-## Questão 1 — Ciclo de requisição-resposta e execução no servidor
+## Questão 1
 
-**a) Por que o código PHP nunca chega ao navegador**
+a) Quando eu acesso http://localhost:8000/index.php o navegador faz uma requisição HTTP pro servidor pedindo esse arquivo. O servidor vê que é um arquivo .php e em vez de mandar ele direto, passa pro interpretador do PHP, que executa o código que está entre <?php e ?> ali mesmo no servidor. O que volta pro navegador é só o resultado dessa execução, ou seja, o HTML que foi gerado (o que saiu nos echo e as partes de HTML que já estavam no arquivo). Por isso no "exibir código-fonte" não aparece nenhuma tag PHP, o código original nunca sai do servidor.
 
-O fluxo acontece em três etapas:
+Quando abro o arquivo com duplo clique (file://) não tem servidor nenhum no meio, o navegador só lê o arquivo do disco. Como o navegador não tem interpretador de PHP (ele só entende HTML, CSS e JavaScript), ele mostra o código como texto ou pede pra baixar.
 
-1. **Requisição:** ao acessar `http://localhost:8000/index.php`, o navegador envia uma requisição HTTP (`GET /index.php`) ao servidor web.
-2. **Processamento no servidor:** o servidor identifica pela extensão `.php` que o arquivo não é estático e o entrega ao interpretador PHP. O interpretador executa todo o código entre `<?php ... ?>` (variáveis, condições, laços, acesso a dados) no próprio servidor.
-3. **Resposta:** apenas o **resultado** dessa execução — o texto produzido por `echo`, `print` e pelos trechos de HTML fora das tags PHP — é devolvido ao navegador no corpo da resposta HTTP.
+b) O interpretador PHP é quem executa o script do lado do servidor. Ele recebe o arquivo junto com os dados da requisição ($_GET, $_POST, $_SERVER), roda o código e gera uma saída em texto. Essa saída é enviada como resposta HTTP, com o status (ex: 200) e o Content-Type, que normalmente é text/html. Então o que chega no navegador é texto puro, quase sempre HTML, e o navegador só renderiza.
 
-O código-fonte original fica no servidor; o que trafega pela rede é somente a saída gerada. Por isso o "Exibir código-fonte" ou o DevTools mostram apenas HTML.
 
-Já ao abrir o arquivo com duplo clique (`file://`), não há servidor HTTP nem interpretador envolvidos: o navegador apenas lê o arquivo do disco. Como o navegador **não possui interpretador PHP embutido** (ele só entende HTML, CSS e JavaScript), ele exibe o código como texto puro ou oferece o download.
+## Questão 2
 
-**b) Papel do interpretador PHP e formato da resposta**
+a) No GET os dados vão na própria URL, na query string, tipo processar.php?nome=Ana&turno=noite. Eles ficam visíveis na barra de endereço, no histórico e nos logs do servidor, e tem limite de tamanho por causa da URL. É indicado pra coisas de consulta que não alteram nada, como busca, filtro e paginação, porque dá pra repetir a requisição e salvar o link.
 
-O interpretador PHP é o **motor de execução no lado do servidor**: recebe o script do servidor web, junto com os dados da requisição (superglobais `$_GET`, `$_POST`, `$_SERVER`), executa as instruções e gera uma saída de texto. O servidor web então empacota essa saída numa resposta HTTP com cabeçalhos (status, como `200 OK`, e `Content-Type: text/html; charset=UTF-8`) e a envia ao cliente.
+No POST os dados vão no corpo (body) da requisição, não aparecem na URL. É o indicado quando o envio cria ou altera alguma coisa no servidor, como cadastro, login e formulário de inscrição, e também quando tem mais dados ou dados sensíveis. No PHP eles chegam em $_GET e $_POST.
 
-O conteúdo efetivamente entregue é **texto puro — normalmente HTML** (podendo ser também JSON, XML, CSS etc., conforme o `Content-Type`), que o navegador apenas renderiza.
+b) Essa afirmação está errada. O POST só muda o lugar onde o dado vai (sai da URL e vai pro corpo), mas ele não criptografa nada. Se a conexão for http://, o corpo da requisição passa pela rede em texto normal e qualquer um que intercepte o tráfego consegue ler, por exemplo numa rede Wi-Fi pública. E o próprio usuário consegue ver tudo que foi enviado na aba Network do DevTools.
 
----
+O que realmente protege os dados é o HTTPS, que usa TLS (antigo SSL) pra criptografar a comunicação toda. O certo é usar POST quando faz sentido e HTTPS pra garantir o sigilo.
 
-## Questão 2 — GET versus POST na prática
 
-**a) Diferença técnica e uso recomendado**
+## Questão 3
 
-| Aspecto | GET | POST |
-|---|---|---|
-| Onde vão os dados | Na URL, como *query string*: `processar.php?nome=Ana&turno=noite` | No **corpo (body)** da requisição HTTP |
-| Visibilidade | Aparecem na barra de endereços, histórico, favoritos e logs do servidor | Não aparecem na URL (mas são visíveis no DevTools e na rede) |
-| Tamanho | Limitado pelo comprimento máximo da URL | Adequado para volumes maiores e uploads de arquivos |
-| Semântica | Leitura/consulta; **idempotente** (repetir não altera o estado) | Envio de dados que **criam ou alteram** recursos |
-| Uso recomendado | Buscas, filtros, paginação, links compartilháveis | Cadastros, logins, formulários de inscrição, alterações, dados sensíveis |
+a) Normalização é deixar o dado num formato padrão antes de validar, por exemplo tirar espaços sobrando no começo e no fim. Assim " ana@email.com " e "ana@email.com" viram a mesma coisa.
 
-No PHP, os dados chegam em `$_GET` ou `$_POST`, respectivamente.
+Validação é conferir se o dado obedece às regras: se é obrigatório e veio preenchido, se tem o tamanho certo, se o formato é válido, se o valor está entre as opções permitidas. Se não passar, o dado é recusado e a gente guarda uma mensagem de erro.
 
-**b) Por que POST não é sinônimo de segurança**
+Escape de saída é tratar o dado na hora de mostrar no HTML, convertendo os caracteres especiais pra que apareçam como texto e não sejam interpretados como código.
 
-A afirmação é falsa. O POST apenas muda o **lugar** onde os dados são colocados (do endereço para o corpo da mensagem); ele **não criptografa nada**. Numa conexão `http://`, o corpo da requisição trafega em **texto claro** e pode ser lido por qualquer um que intercepte o tráfego (rede Wi-Fi pública, proxy, ataque *man-in-the-middle*). Além disso, o próprio usuário vê todo o payload na aba *Network* do DevTools.
+Uma etapa não substitui a outra. Um nome com mais de 3 letras é válido mesmo tendo <script> dentro, então mesmo depois de validar ainda precisa do escape na saída.
 
-A tecnologia indispensável para garantir o sigilo é o **HTTPS**, que é o HTTP sobre **TLS** (sucessor do SSL). O TLS criptografa toda a comunicação (URL, cabeçalhos e corpo) e autentica o servidor por certificado digital. A combinação correta é: **POST para a semântica certa + HTTPS para o sigilo**.
+b) Exemplos de funções que usei:
 
----
+- Normalização: trim() e o operador ??, por exemplo `$email = trim($_POST['email'] ?? '');`
+- Validação: filter_var($email, FILTER_VALIDATE_EMAIL) pro e-mail, mb_strlen($nome) pra contar o tamanho do nome (conta certo com acento), in_array($valor, $permitidos, true) pra conferir se está na lista permitida e is_array() pra ver se veio uma lista.
+- Escape: `htmlspecialchars($nome, ENT_QUOTES, 'UTF-8')`
 
-## Questão 3 — Normalização, validação e escape de saída
+O htmlspecialchars troca < por &lt;, > por &gt;, & por &amp;, aspas duplas por &quot; e, com ENT_QUOTES, aspas simples também. Isso evita o XSS (Cross-Site Scripting). Sem ele, se alguém digitar <script>alert("XSS")</script> no nome, o navegador executaria esse script na página de resposta, e um atacante poderia roubar cookies e sessão ou mudar o conteúdo da página. Com o escape o texto só aparece escrito na tela, sem executar.
 
-**a) Objetivo de cada etapa**
 
-1. **Normalização:** preparar e padronizar o dado bruto antes de aplicar as regras — remover espaços extras, garantir o tipo esperado, uniformizar maiúsculas/minúsculas. Evita que `"  ana@ex.com "` seja considerado diferente de `"ana@ex.com"`.
-2. **Validação:** verificar se o dado normalizado cumpre as regras de negócio e de tipo (obrigatoriedade, tamanho, formato, pertencimento a uma lista permitida). Se não cumprir, o dado é **rejeitado** e uma mensagem de erro é registrada.
-3. **Escape de saída:** no momento de exibir o dado no HTML, converter os caracteres com significado especial em entidades, para que sejam mostrados como texto e não interpretados como código.
+## Questão 4
 
-Uma etapa não substitui a outra: um nome pode ser válido (mais de 3 caracteres) e ainda conter `<script>`; por isso o escape é sempre obrigatório na saída.
+a) É uma falha grave porque tudo que está no navegador está nas mãos do usuário. O required, o type="email", o minlength e o JavaScript rodam no computador do cliente e dá pra burlar fácil. O servidor só recebe uma requisição HTTP e não tem como saber se ela veio mesmo do formulário. Se o processar.php grava o $_POST sem validar, ele aceita qualquer coisa: campo vazio, e-mail inválido, opção que não existe, texto enorme ou até código malicioso. Isso compromete a integridade dos dados e a segurança do sistema.
 
-**b) Funções nativas e vulnerabilidade evitada**
+b) Alguns casos em que a validação do cliente não serve de nada:
 
-| Etapa | Funções PHP | Exemplo |
-|---|---|---|
-| Normalização | `trim()`, `mb_strtolower()`, operador `??`, `(int)` | `$email = trim($_POST['email'] ?? '');` |
-| Validação | `filter_var()`, `mb_strlen()`, `in_array(..., true)`, `is_array()` | `filter_var($email, FILTER_VALIDATE_EMAIL)` / `mb_strlen($nome) >= 3` |
-| Escape de saída | `htmlspecialchars()` | `echo htmlspecialchars($nome, ENT_QUOTES, 'UTF-8');` |
+- O usuário desativa o JavaScript no navegador, aí o script de validação nem roda.
+- O usuário abre o DevTools (inspecionar elemento) e apaga o required ou o minlength, ou muda o value de uma opção do select pra algo que não existe.
+- O envio é feito direto pro processar.php sem usar o formulário, pelo Postman, Insomnia ou cURL, por exemplo: `curl -X POST -d "nome=a&email=x" http://localhost:8000/processar.php`
+- Bots que mandam requisições automáticas.
 
-O `htmlspecialchars` converte `<` → `&lt;`, `>` → `&gt;`, `&` → `&amp;`, `"` → `&quot;` e, com `ENT_QUOTES`, `'` → `&#039;`. Isso impede o **XSS (Cross-Site Scripting)**: sem o escape, se alguém digitar `<script>alert("XSS")</script>` no nome, o navegador executaria esse script na página de resposta — permitindo roubo de cookies/sessão, redirecionamentos ou alteração do conteúdo. Com o escape, o texto aparece literalmente na tela, inofensivo.
+A validação no cliente serve pra melhorar a experiência do usuário: ele vê o erro na hora, sem precisar enviar e esperar a resposta. Mas quem garante de verdade que os dados estão certos é a validação no servidor, porque essa não tem como ser burlada. Por isso ela é obrigatória e tem que repetir todas as regras do cliente.
 
----
 
-## Questão 4 — Validação no cliente versus no servidor
+## Questão 5
 
-**a) Por que é uma falha crítica**
-
-O navegador é um **ambiente não confiável**: está sob controle total do usuário. Atributos como `required`, `type="email"` e `minlength`, e scripts JavaScript, rodam na máquina do cliente e podem ser contornados com facilidade. O servidor, por sua vez, recebe apenas uma requisição HTTP — ele não tem como saber se ela veio do formulário original. Ao gravar `$_POST` sem validação, o `processar.php` aceita qualquer coisa: campos vazios, e-mails inválidos, valores fora das opções, textos gigantes ou código malicioso, comprometendo a **integridade dos dados** e a **segurança** da aplicação (XSS armazenado, injeções, dados corrompidos).
-
-**b) Cenários em que a validação do cliente é ignorada e papel de cada uma**
-
-- **JavaScript desativado** no navegador: o script de validação simplesmente não executa.
-- **Edição no DevTools** (Inspecionar elemento): o usuário remove `required`/`minlength`, troca `type="email"` por `text` ou altera o `value` de uma opção do `<select>` para algo fora da lista.
-- **Requisição direta**, sem usar o formulário: com cURL, Postman, Insomnia ou um script, é possível enviar qualquer POST para `processar.php`. Exemplo: `curl -X POST -d "nome=a&email=x" http://localhost:8000/processar.php`.
-- **Bots e automações** que enviam dados em massa direto ao endpoint.
-
-**Papéis:**
-
-- **Validação no cliente = experiência do usuário (UX).** Dá feedback imediato, evita idas e voltas ao servidor e orienta o preenchimento. É uma conveniência, não uma barreira.
-- **Validação no servidor = garantia.** É a única que não pode ser contornada; garante integridade, consistência e segurança. É **obrigatória**, e deve repetir (e ampliar) todas as regras do cliente.
-
----
-
-## Questão 5 — Superglobais e entradas complexas
-
-**a) Operador de coalescência nula (`??`)**
-
-O operador `??` retorna o valor à esquerda se ele **existir e não for `null`**; caso contrário, retorna o valor padrão à direita:
+a) O ?? é o operador de coalescência nula. Ele usa o valor da esquerda se ele existir e não for null, senão usa o valor da direita:
 
 ```php
 $nome = $_POST['nome'] ?? '';
 ```
 
-Ele evita o aviso **`Warning: Undefined array key "nome"`**, que ocorre quando se tenta ler uma chave que não foi enviada. Isso é comum em checkboxes e botões de rádio não marcados (o navegador simplesmente não envia o campo) ou em requisições forjadas sem certos campos. O `??` fornece um *fallback* seguro, deixa o código mais limpo do que `isset($_POST['nome']) ? $_POST['nome'] : ''` e permite que a validação trate o valor vazio de forma controlada.
+Sem ele, se a chave não foi enviada, o PHP dá o aviso "Warning: Undefined array key". Isso acontece bastante com checkbox e radio, porque quando nenhum é marcado o navegador nem manda o campo, e também quando alguém envia a requisição faltando campos de propósito. Com o ?? a variável recebe um valor padrão e depois a validação cuida do caso vazio. Fica mais curto que usar isset com ternário.
 
-**b) Seleção múltipla com `name="oficinas[]"`**
-
-**No HTML:** cada checkbox recebe o mesmo nome com colchetes no final:
+b) No HTML todos os checkboxes recebem o mesmo name com colchetes no final:
 
 ```html
 <input type="checkbox" name="oficinas[]" value="html_css">
 <input type="checkbox" name="oficinas[]" value="php_backend">
 ```
 
-O navegador envia um par para cada item marcado (`oficinas[]=html_css&oficinas[]=php_backend`). O sufixo `[]` instrui o PHP a agrupar esses valores num **array**: `$_POST['oficinas'] = ['html_css', 'php_backend']`. Sem os colchetes, só o último valor seria mantido.
+O navegador manda um valor pra cada item marcado e, por causa do [], o PHP junta tudo num array: $_POST['oficinas'] fica ['html_css', 'php_backend']. Sem os colchetes só ficaria o último valor marcado.
 
-**No PHP:** o backend não pode presumir o formato, pois a requisição pode ter sido forjada (ex.: `oficinas=texto` em vez de array). A validação correta:
+No PHP não dá pra confiar que vai chegar um array, porque alguém pode mandar oficinas=texto direto. Então primeiro confiro com is_array(), depois passo por cada item conferindo se está na lista permitida (whitelist) com in_array usando true no terceiro parâmetro, que faz a comparação estrita (compara valor e tipo e evita conversão automática). Por último vejo se a lista não está vazia:
 
 ```php
 $permitidas = ['html_css', 'js_dom', 'php_backend'];
@@ -141,7 +101,3 @@ if (!is_array($oficinas)) {
     }
 }
 ```
-
-1. `is_array()` confirma que o dado é realmente uma lista.
-2. Cada item é comparado com a **whitelist** usando `in_array($item, $permitidos, true)`. O terceiro parâmetro `true` ativa a **comparação estrita** (valor e tipo), evitando coincidências indevidas por conversão automática de tipos.
-3. Verifica-se que a lista não está vazia.
