@@ -86,9 +86,9 @@ textarea {
 textarea { resize: vertical; }
 
 /* Foco visível e acessível em todos os controles */
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
+input:focus,
+select:focus,
+textarea:focus,
 button:focus-visible {
   outline: 3px solid var(--foco);
   outline-offset: 2px;
