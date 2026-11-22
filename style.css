@@ -1,0 +1,166 @@
+/* ===== Paleta e base ===== */
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --texto: #2b3440;
+  --texto-suave: #6b7785;
+  --borda: #d5dbe1;
+  --destaque: #2f5d6e;        /* azul petróleo */
+  --destaque-hover: #244a58;
+  --foco: #5b9bb3;
+  --erro: #c0392b;
+  --erro-bg: #fdecea;
+  --sucesso: #1e7a4c;
+  --sucesso-bg: #e8f6ef;
+  --raio: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--texto);
+  line-height: 1.5;
+}
+
+/* ===== Cabeçalho e rodapé ===== */
+.site-header {
+  background: var(--destaque);
+  color: #fff;
+  text-align: center;
+  padding: 2rem 1rem 1.5rem;
+}
+.site-header h1 { margin: 0 0 .25rem; font-size: 1.8rem; }
+.site-header p  { margin: 0; opacity: .85; }
+
+.site-footer {
+  text-align: center;
+  padding: 1.25rem;
+  color: var(--texto-suave);
+  font-size: .875rem;
+}
+
+/* ===== Layout ===== */
+.container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(43, 52, 64, .06);
+}
+.card h2 { margin-top: 0; color: var(--destaque); }
+
+/* ===== Campos ===== */
+.campo { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1.25rem; }
+
+label, legend { font-weight: 600; font-size: .95rem; }
+
+input[type="text"],
+input[type="email"],
+select,
+textarea {
+  width: 100%;
+  padding: .65rem .8rem;
+  font: inherit;
+  color: var(--texto);
+  background: #fff;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  transition: border-color .15s, box-shadow .15s;
+}
+textarea { resize: vertical; }
+
+/* Foco visível e acessível em todos os controles */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+  border-color: var(--destaque);
+}
+
+/* ===== Rádios e checkboxes ===== */
+.grupo { border: 1px solid var(--borda); border-radius: 8px; padding: .8rem 1rem; }
+.grupo legend { padding: 0 .4rem; }
+
+.opcoes {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .5rem .6rem;
+  align-items: center;
+}
+.opcoes label { font-weight: 400; cursor: pointer; }
+.opcoes input { width: 1.1rem; height: 1.1rem; accent-color: var(--destaque); margin: 0; }
+
+.contador { color: var(--texto-suave); font-size: .85rem; align-self: flex-end; }
+.contador.alerta { color: var(--erro); }
+
+/* ===== Botão ===== */
+.btn {
+  display: inline-block;
+  width: 100%;
+  padding: .8rem 1.2rem;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--destaque);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background .15s, transform .1s;
+}
+.btn:hover  { background: var(--destaque-hover); }
+.btn:active { transform: translateY(1px); }
+
+/* ===== Validação e feedback ===== */
+.is-invalid { border-color: var(--erro) !important; background: var(--erro-bg) !important; }
+
+.error-message { color: var(--erro); font-size: .875rem; margin: .4rem 0 0; }
+
+.alerta-erro {
+  background: var(--erro-bg);
+  border: 1px solid var(--erro);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+.alerta-erro ul { margin: .5rem 0 0; padding-left: 1.2rem; color: var(--erro); }
+
+.alerta-sucesso {
+  background: var(--sucesso-bg);
+  border: 1px solid var(--sucesso);
+  color: var(--sucesso);
+  border-radius: 8px;
+  padding: .75rem 1rem;
+  font-weight: 600;
+}
+
+/* Cartão de confirmação (processar.php) */
+.dados { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1rem; margin: 1.25rem 0; }
+.dados dt { font-weight: 600; color: var(--texto-suave); }
+.dados dd { margin: 0; word-break: break-word; }
+
+/* ===== Responsividade ===== */
+@media (max-width: 600px) {
+  .card { padding: 1.25rem; }
+  .site-header h1 { font-size: 1.4rem; }
+  .dados { grid-template-columns: 1fr; gap: .15rem; }
+  .dados dd { margin-bottom: .6rem; }
+}
